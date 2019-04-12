@@ -57,10 +57,15 @@ public class ServiceGenerator {
         return new Cache(new File(MyApplication.getInstance().getCacheDir(),"someIdentifier"), cacheSize);
     }
 
+    /**
+     * This interceptor will be called both if the network is available and if the network is not available
+     * @return
+     */
     private static Interceptor offlineInterceptor() {
         return new Interceptor() {
             @Override
             public Response intercept(Chain chain) throws IOException {
+                Log.d(TAG, "offline interceptor: called.");
                 Request request = chain.request();
 
                 if (!MyApplication.hasNetwork()) {
@@ -80,6 +85,10 @@ public class ServiceGenerator {
         };
     }
 
+    /**
+     * This interceptor will be called ONLY if the network is available
+     * @return
+     */
     private static Interceptor networkInterceptor() {
         return new Interceptor() {
             @Override
@@ -88,17 +97,9 @@ public class ServiceGenerator {
 
                 Response response = chain.proceed(chain.request());
 
-                CacheControl cacheControl;
-
-                if (MyApplication.hasNetwork()) {
-                    cacheControl = new CacheControl.Builder()
-                            .maxAge(5, TimeUnit.SECONDS)
-                            .build();
-                } else {
-                    cacheControl = new CacheControl.Builder()
-                            .maxStale(7, TimeUnit.DAYS)
-                            .build();
-                }
+                CacheControl cacheControl = new CacheControl.Builder()
+                        .maxAge(5, TimeUnit.SECONDS)
+                        .build();
 
                 return response.newBuilder()
                         .removeHeader(HEADER_PRAGMA)
