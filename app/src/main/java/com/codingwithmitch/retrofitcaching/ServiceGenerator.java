@@ -47,8 +47,8 @@ public class ServiceGenerator {
     private static OkHttpClient okHttpClient(){
         return new OkHttpClient.Builder()
                 .cache(cache())
-                .addInterceptor(httpLoggingInterceptor())
-                .addNetworkInterceptor(networkInterceptor())
+                .addInterceptor(httpLoggingInterceptor()) // used if network off OR on
+                .addNetworkInterceptor(networkInterceptor()) // only used when network is on
                 .addInterceptor(offlineInterceptor())
                 .build();
     }
@@ -68,6 +68,7 @@ public class ServiceGenerator {
                 Log.d(TAG, "offline interceptor: called.");
                 Request request = chain.request();
 
+                // prevent caching when network is on. For that we use the "networkInterceptor"
                 if (!MyApplication.hasNetwork()) {
                     CacheControl cacheControl = new CacheControl.Builder()
                             .maxStale(7, TimeUnit.DAYS)

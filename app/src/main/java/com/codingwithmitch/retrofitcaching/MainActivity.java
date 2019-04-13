@@ -86,7 +86,13 @@ public class MainActivity extends AppCompatActivity {
                                     && response.raw().networkResponse() == null){
                                 Log.d(TAG, "onResponse: response is from CACHE...");
                             }
-                            adapter.setPhotos(response.body());
+
+                            if(response.body() == null){
+                                adapter.setPhotos(new ArrayList<Photo>());
+                            }
+                            else{
+                                adapter.setPhotos(response.body());
+                            }
                         }
 
                         @Override
